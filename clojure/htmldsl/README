@@ -1,10 +1,6 @@
-# htmldsl
+HTML DSL
 
-FIXME: write description
-
-## Usage
-
-FIXME: write
+Simple CLojure HTML DSL based on Vector's syntax.
 
 ## License
 
