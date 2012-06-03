@@ -11,21 +11,26 @@
   (str (name (first a)) "=\"" (second a) "\""))
 
 (defn attrs [as]
-  (str " " (join " " (map (fn [x] (attr x)) as)) " " ))
+  (str " " (join " " (map #(attr %) as)) " " ))
 
 (defn el [vec]
   (let [tag (name (first vec))
         sec (second vec)]
         (join ""
-          (cond (vector? sec)
-                  [(open-tag tag)
-                    (el sec)
-                    (close-tag tag)]
-                (map? sec)
-                  (let [trd (nth vec 2)]
-                    [(open-tag tag (attrs sec))
-                    (if (vector? trd) (el trd) trd)
-                    (close-tag tag)])
+          (cond
+            ; [:p [:span "Content"]]
+            (vector? sec)
+              [(open-tag tag)
+               (el sec)
+               (close-tag tag)]
+            ; [:p {:class "red"} "Content"] OR [:p {:class "red"} [:span "Content"]]
+            (map? sec)
+              (let [trd (nth vec 2)]
+                [(open-tag tag (attrs sec))
+                (if (vector? trd) (el trd) trd)
+                (close-tag tag)])
+            ; [:p "Content"]
             :else [(open-tag tag)
                    sec
                    (close-tag tag)]))))
+
