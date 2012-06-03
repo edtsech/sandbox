@@ -1,0 +1,23 @@
+{% block title %}Registration{% endblock %}
+{% block content %}
+	{% if errors %}
+		<ol>
+		{% for error in errors %}
+			<li><font color=red>{{ error }}</font>
+		{% endfor %}
+		</ol>
+	{% endif %}
+
+	<form method="post">
+		First Name:<br />
+		<input name="first_name" value="{{ person.first_name|default_if_none:"" }}" /><br />
+		Last Name:<br />
+		<input name="last_name" value="{{ person.last_name|default_if_none:"" }}" /><br />
+		Email:<br />
+		<input name="email" value="{{ person.email|default_if_none:"" }}" /><br />
+		Password:<br />
+		<input name="password" type="password" value="{{ person.password|default_if_none:"" }}" /><br /><br />
+
+		<input type="submit" value="Submit" />
+	</form>
+{% endblock %}

@@ -1,0 +1,113 @@
+<html><head>
+  <title>Pulse</title>
+  <script src="/static/jquery.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="stylesheet" href="/static/app.css" />
+  <script>
+    function listen_for_events(timestamp) {
+       $.get("/messages/pull/" + timestamp, function(data) {
+            for (var i=0; i<data.messages.length; i++) {
+               var id   = data.messages[i].message_id;
+               var msg  = data.messages[i].message_text;
+               var time = data.messages[i].created_at;
+               var name = data.messages[i].person_name;
+               if (id != "undefined")  {
+                $('#' + id + ' li:last-child').before("<li><span>" + time + "</span><p>" + name + ': ' + msg + "</p></li>");
+               } else {
+                $("#messages").append("<li><span>" + time + "</span><p><a class='opener' href='#'>&bull;</a> " + name + ': ' + msg + "</p></li>");
+               }
+            }
+            listen_for_events(data.timestamp);
+         });
+    }
+    $(document).ready(function() {
+      $('textarea').bind('keypress', function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+          $(this).parents('form').trigger('submit');
+        }
+      });
+      $('form').submit(function(){
+        $.post('/messages/create', $(this).serialize(), function() {
+          $('textarea').val('');
+        });
+        return false;
+      });
+      $('.reply-link').click(function() {
+        $(this).hide();
+        $(this).parent().next('div').show();
+        return false;
+      });
+      $('.opener').live('click', function() {
+        $(this).parents('li').find('ul').toggle();
+        return false;
+      });
+      listen_for_events({{ timestamp }});
+    });
+  </script>
+  </head>
+
+  <body>
+    <div id="wrapper">
+      <div id="timeline">
+        <div id="user_nav"></div>
+        <h1 class="project-name">Pulse</h1>
+        <div style="clear: both">
+          <p id="notice"></p>
+          <ul id="messages">
+            {% for message in messages %}
+              {% if message.message_id %}
+
+              {% else %}
+                <li>
+                  <span>{{ message.created_at }}</span>
+                  <p>
+                    <a class="opener" href="#">&bull;</a>
+                    {{ message.person_name }}:
+                    {% autoescape on %}
+                      {{ message.message_text }}
+                    {% endautoescape %}
+                  </p>
+                  <ul id="{{message.id}}">
+                    {% for msg in message.messages %}
+                      <li>
+                        <span>{{ msg.created_at }}</span>
+                        <p>
+                          {{ msg.person_name }}:
+                          {% autoescape on %}
+                            {{ msg.message_text }}
+                          {% endautoescape %}
+                        </p>
+                      </li>
+                    {% endfor %}
+                    <li>
+                      <p><a class="reply-link" href="#">Reply</a></p>
+                      <div class="reply-form">
+                        <form action="/messages/create" method="post">
+                          <input type="hidden" name="message_id" value="{{ message.id }}">
+                          <textarea name="message_text">{% if new_msg %}
+                            {{ new_msg.message_text }}{% endif %}</textarea>
+                          <br />
+                          <input type="submit" value="Send"/>
+                        </form>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+          <form action="/messages/create" method="post">
+            <textarea name="message_text">{% if new_msg %}
+              {{ new_msg.message_text }}{% endif %}</textarea>
+            <br />
+            <input type="submit" value="Send"/>
+          </form>
+        </div>
+      </div>
+      <div id="sidebar">
+        Welcome to Chicago Boss Chat
+      </div>
+    </div>
+  </body>
+</html>
