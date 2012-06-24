@@ -22,5 +22,7 @@
   (is (= "<p></p>" (el [:p])))
   (is (= "<p>asd</p>" (el [:p "asd"])))
   (is (= "<p><span></span></p>" (el [:p [:span]])))
+  (is (= "<p class=\"big\" ></p>" (el [:p {:class "big"}])))
   (is (= "<p><span>asd</span></p>" (el [:p [:span "asd"]])))
   (is (= "<p class=\"big\" ><span>asd</span></p>" (el html))))
+

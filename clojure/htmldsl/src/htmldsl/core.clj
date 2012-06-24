@@ -2,10 +2,10 @@
   (:use [clojure.string :only (join)]))
 
 (defn open-tag [tag & [attrs]]
-  (str "<" tag attrs ">"))
+  (str "<" (name tag) attrs ">"))
 
 (defn close-tag [tag]
-  (str "</" tag ">"))
+  (str "</" (name tag) ">"))
 
 (defn attr [a]
   (str (name (first a)) "=\"" (second a) "\""))
@@ -13,24 +13,27 @@
 (defn attrs [as]
   (str " " (join " " (map #(attr %) as)) " " ))
 
-(defn el [vec]
-  (let [tag (name (first vec))
-        sec (second vec)]
-        (join ""
-          (cond
-            ; [:p [:span "Content"]]
-            (vector? sec)
-              [(open-tag tag)
-               (el sec)
-               (close-tag tag)]
-            ; [:p {:class "red"} "Content"] OR [:p {:class "red"} [:span "Content"]]
-            (map? sec)
-              (let [trd (nth vec 2)]
-                [(open-tag tag (attrs sec))
-                (if (vector? trd) (el trd) trd)
-                (close-tag tag)])
-            ; [:p "Content"]
-            :else [(open-tag tag)
-                   sec
-                   (close-tag tag)]))))
+(defn wrap-tag
+  ([tag-name]
+    ; [:p]
+    [(open-tag tag-name)
+    (close-tag tag-name)])
+  ([tag-name content-or-attributes]
+    (if (map? content-or-attributes)
+      ; [:p {:class "big"}]
+      [(open-tag tag-name (attrs content-or-attributes))
+      (close-tag tag-name)]
+      ; [:p [:span]]
+      [(open-tag tag-name)
+       (if (string? content-or-attributes)
+         content-or-attributes
+         (join (apply wrap-tag content-or-attributes)))
+       (close-tag tag-name)]))
+  ([tag-name attributes content]
+    ; [:p {:class "big"} [:span "asd"]]
+    [(open-tag tag-name (attrs attributes))
+     (if (string? content) content (join (apply wrap-tag content)))
+     (close-tag tag-name)]))
 
+(defn el [vec]
+  (join (apply wrap-tag vec)))
