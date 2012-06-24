@@ -14,26 +14,26 @@
   (str " " (join " " (map #(attr %) as)) " " ))
 
 (defn wrap-tag
-  ([tag-name]
+  ([tag]
     ; [:p]
-    [(open-tag tag-name)
-    (close-tag tag-name)])
-  ([tag-name content-or-attributes]
-    (if (map? content-or-attributes)
+    [(open-tag tag)
+    (close-tag tag)])
+  ([tag content-or-attrs]
+    (if (map? content-or-attrs)
       ; [:p {:class "big"}]
-      [(open-tag tag-name (attrs content-or-attributes))
-      (close-tag tag-name)]
+      [(open-tag tag (attrs content-or-attrs))
+      (close-tag tag)]
       ; [:p [:span]]
-      [(open-tag tag-name)
-       (if (string? content-or-attributes)
-         content-or-attributes
-         (join (apply wrap-tag content-or-attributes)))
-       (close-tag tag-name)]))
-  ([tag-name attributes content]
+      [(open-tag tag)
+       (if (string? content-or-attrs)
+         content-or-attrs
+         (join (apply wrap-tag content-or-attrs)))
+       (close-tag tag)]))
+  ([tag attributes content]
     ; [:p {:class "big"} [:span "asd"]]
-    [(open-tag tag-name (attrs attributes))
+    [(open-tag tag (attrs attributes))
      (if (string? content) content (join (apply wrap-tag content)))
-     (close-tag tag-name)]))
+     (close-tag tag)]))
 
 (defn el [vec]
   (join (apply wrap-tag vec)))
