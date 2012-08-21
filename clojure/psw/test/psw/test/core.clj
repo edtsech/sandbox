@@ -14,4 +14,6 @@
          (is (= '((1) (1) (1 2 2) (3) (3 4 4))
                  (partition-starts-with odd? '(1 1 1 2 2 3 3 4 4))))
          (is (= '((1 1 1) (2) (2 3 3) (4) (4))
-                 (partition-starts-with even? '(1 1 1 2 2 3 3 4 4)))))
+                 (partition-starts-with even? '(1 1 1 2 2 3 3 4 4))))
+         (is (= '((2) (2 3 3) (4) (4))
+                 (partition-starts-with even? (drop-while odd? '(1 1 1 2 2 3 3 4 4))))))
